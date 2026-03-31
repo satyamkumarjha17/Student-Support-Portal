@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: student-support-portal
+    env: node
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: MONGODB_URI
+        value: mongodb+srv://satyam:satyam123@cluster0.rqhykph.mongodb.net/student-management?retryWrites=true&w=majority&appName=Cluster0
+      - key: SMTP_USER
+        value: 0satyamkumarjha2@gmail.com
+      - key: SMTP_PASS
+        value: wvnooyncypjwrugq
+      - key: JWT_SECRET
+        value: supersecretkey_change_in_production
