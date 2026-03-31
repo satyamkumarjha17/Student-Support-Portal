@@ -14,12 +14,12 @@ const ComplaintForm = ({ onAdded, userType }) => {
 
   const hostelerDepartments = [
     'Maintenance', 'Food', 'DSW', 'DCPD', 'Hostel', 'Fee Department', 
-    'E-Governance', 'HOD', 'Faculty', 'Security', 'Others'
+    'E-Governance', 'HOD', 'Faculty', 'Security', 'IT Support', 'Library', 'Sports', 'Administration', 'Others'
   ];
 
   const dayScholarDepartments = [
     'DSW', 'DCPD', 'Fee Department', 'Academics', 'HOD', 
-    'E-Governance', 'Security', 'Others'
+    'E-Governance', 'Security', 'IT Support', 'Library', 'Sports', 'Administration', 'Others'
   ];
 
   const departments = userType === 'Hosteler' ? hostelerDepartments : dayScholarDepartments;

@@ -215,6 +215,11 @@ const Register = () => {
                     <option value="Hostel">Hostel</option>
                     <option value="Fee Department">Fee Department</option>
                     <option value="E-Governance">E-Governance</option>
+                    <option value="IT Support">IT Support</option>
+                    <option value="Library">Library</option>
+                    <option value="Sports">Sports</option>
+                    <option value="Administration">Administration</option>
+                    <option value="Maintenance">Maintenance</option>
                     <option value="Others">Others (Specify)</option>
                   </select>
                   
