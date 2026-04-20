@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { CheckCircle, Clock } from 'lucide-react';
+import { CheckCircle, Clock, AlertTriangle } from 'lucide-react';
 
 const ManagementDashboard = () => {
   const { user } = useContext(AuthContext);
@@ -27,7 +27,34 @@ const ManagementDashboard = () => {
 
   const filteredComplaints = filter === 'All' 
     ? complaints 
-    : complaints.filter(c => c.status === filter);
+    : filter === 'Escalated'
+      ? complaints.filter(c => c.isEscalated && c.status !== 'Resolved')
+      : complaints.filter(c => c.status === filter);
+
+  const getTimerDisplay = (complaint) => {
+    if (complaint.status === 'Resolved') {
+      return <span className="text-green-600 text-xs font-medium">Resolved</span>;
+    }
+
+    if (!complaint.deadline) return <span className="text-slate-400 text-xs">-</span>;
+
+    const deadline = new Date(complaint.deadline);
+    const now = new Date();
+    
+    if (deadline < now || complaint.isEscalated) {
+      return <span className="text-red-600 text-xs font-bold flex items-center gap-1"><AlertTriangle className="h-3 w-3" /> Escalated</span>;
+    }
+
+    const diff = deadline - now;
+    const hoursRemaining = Math.floor(diff / (1000 * 60 * 60));
+    const minsRemaining = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+    if (hoursRemaining < 2) {
+      return <span className="text-orange-500 text-xs font-medium flex items-center gap-1"><Clock className="h-3 w-3" /> {hoursRemaining}h {minsRemaining}m</span>;
+    }
+    
+    return <span className="text-slate-600 text-xs font-medium flex items-center gap-1"><Clock className="h-3 w-3" /> {hoursRemaining}h {minsRemaining}m</span>;
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -46,14 +73,14 @@ const ManagementDashboard = () => {
           <p className="text-slate-500 text-sm">Manage and resolve reported issues.</p>
         </div>
         
-        <div className="flex bg-white rounded-lg p-1 border border-slate-200 shadow-sm">
-          {['All', 'Pending', 'In Progress', 'Resolved'].map(f => (
+        <div className="flex bg-white rounded-lg p-1 border border-slate-200 shadow-sm flex-wrap">
+          {['All', 'Pending', 'In Progress', 'Resolved', 'Escalated'].map(f => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${filter === f ? 'bg-primary-50 text-primary-700' : 'text-slate-600 hover:bg-slate-50'}`}
+              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${filter === f ? (f === 'Escalated' ? 'bg-red-50 text-red-700' : 'bg-primary-50 text-primary-700') : 'text-slate-600 hover:bg-slate-50'}`}
             >
-              {f}
+              {f === 'Escalated' && user?.role === 'higher_authority' ? 'Escalated (Head View)' : f}
             </button>
           ))}
         </div>
@@ -80,6 +107,7 @@ const ManagementDashboard = () => {
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Category</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Date</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">SLA Timer</th>
                   <th scope="col" className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
                 </tr>
               </thead>
@@ -106,6 +134,9 @@ const ManagementDashboard = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                       {new Date(comp.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {getTimerDisplay(comp)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <Link to={`/complaint/${comp._id}`} className="text-primary-600 hover:text-primary-900 font-medium bg-primary-50 px-3 py-1.5 rounded-lg transition-colors">

@@ -1,8 +1,23 @@
 const Complaint = require('../models/Complaint');
 
+const getSLAHours = (department) => {
+  const urgentDepts = ['Medical', 'Security', 'Food', 'Maintenance', 'IT Support'];
+  const extendedDepts = ['Academics', 'Fee Department', 'DSW', 'DCPD', 'E-Governance', 'HOD', 'Faculty'];
+
+  if (urgentDepts.includes(department)) return 12;
+  if (extendedDepts.includes(department)) return 36;
+  return 24; // Default
+};
+
 // Get all complaints for a user or department
 exports.getComplaints = async (req, res) => {
   try {
+    // Lazy auto-escalation update: if past deadline and not resolved, mark escalated
+    await Complaint.updateMany(
+      { status: { $ne: 'Resolved' }, deadline: { $lt: new Date() }, isEscalated: false },
+      { $set: { isEscalated: true } }
+    );
+
     let query = {};
     if (req.user.type === 'Student') {
       query.studentId = req.user.id;
@@ -26,11 +41,15 @@ exports.createComplaint = async (req, res) => {
   try {
     const { title, description, category, department } = req.body;
     
+    const slaHours = getSLAHours(department);
+    const deadline = new Date(Date.now() + slaHours * 60 * 60 * 1000);
+    
     const newComplaint = new Complaint({
       title,
       description,
       category,
       department,
+      deadline,
       studentId: req.user.id
     });
 
@@ -44,6 +63,12 @@ exports.createComplaint = async (req, res) => {
 // Get a specific complaint
 exports.getComplaintById = async (req, res) => {
   try {
+    // Lazy auto-escalation update for this specific complaint
+    await Complaint.updateOne(
+      { _id: req.params.id, status: { $ne: 'Resolved' }, deadline: { $lt: new Date() }, isEscalated: false },
+      { $set: { isEscalated: true } }
+    );
+
     const complaint = await Complaint.findById(req.params.id)
       .populate('studentId', 'name uid email studentType hostelName roomNumber');
       

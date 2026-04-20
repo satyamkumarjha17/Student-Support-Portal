@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import axios from 'axios';
 import { io } from 'socket.io-client';
-import { Send, ArrowLeft, Clock, User, Building, MessageSquare } from 'lucide-react';
+import { Send, ArrowLeft, Clock, User, Building, MessageSquare, AlertTriangle } from 'lucide-react';
 
 const SOCKET_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '/';
 
@@ -142,6 +142,23 @@ const ComplaintDetails = () => {
                   {new Date(complaint.createdAt).toLocaleString()}
                 </div>
               </div>
+
+              {complaint.deadline && (
+                <div>
+                  <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-2">
+                    SLA Deadline
+                    {complaint.isEscalated && (
+                      <span className="bg-red-100 text-red-700 text-[10px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+                        <AlertTriangle className="h-2.5 w-2.5" /> ESCALATED TO HEAD
+                      </span>
+                    )}
+                  </h3>
+                  <div className={`flex items-center gap-1.5 text-sm font-medium ${complaint.isEscalated ? 'text-red-600' : 'text-slate-800'}`}>
+                    <Clock className={`h-4 w-4 ${complaint.isEscalated ? 'text-red-500' : 'text-slate-400'}`} />
+                    {new Date(complaint.deadline).toLocaleString()}
+                  </div>
+                </div>
+              )}
 
               {user.type === 'Management' && (
                 <div className="pt-4 border-t">
