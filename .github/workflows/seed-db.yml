@@ -1,0 +1,25 @@
+name: Seed MongoDB Atlas Database
+on:
+  push:
+    branches:
+      - main
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install Dependencies
+        working-directory: ./backend
+        run: npm install
+      - name: Run Seeders
+        working-directory: ./backend
+        env:
+          MONGODB_URI: "mongodb+srv://satyam:satyam123@cluster0.rqhykph.mongodb.net/student-management?retryWrites=true&w=majority&appName=Cluster0"
+        run: |
+          node seedAllDepartments.js
+          node seedWarden.js
+          node seedHigherAuthority.js
