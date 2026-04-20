@@ -4,7 +4,10 @@ require('dotenv').config();
 exports.sendEmail = async (options) => {
   try {
     // Requires real valid Gmail credentials in .env file to dispatch actual emails
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    const smtpUser = process.env.SMTP_USER || '0satyamkumarjha2@gmail.com';
+    const smtpPass = process.env.SMTP_PASS || 'wvnooyncypjwrugq';
+
+    if (!smtpUser || !smtpPass) {
       console.error("CRITICAL ERROR: Please add your Gmail SMTP_USER and SMTP_PASS in your .env file!");
       throw new Error("SMTP credentials are not configured in the backend `.env` file. Cannot send real emails.");
     }
@@ -12,8 +15,8 @@ exports.sendEmail = async (options) => {
     const transporter = nodemailer.createTransport({
       service: 'gmail', // Standardizing on Gmail for a free production-ready SMTP pipe
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS, 
+        user: smtpUser,
+        pass: smtpPass, 
       },
     });
 

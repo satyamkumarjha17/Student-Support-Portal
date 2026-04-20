@@ -62,7 +62,7 @@ exports.login = async (req, res) => {
 
     const token = jwt.sign(
       { id: user._id, type: user.type, role: user.role, department: user.department },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || 'supersecretkey_change_in_production',
       { expiresIn: '1d' }
     );
 
@@ -172,7 +172,7 @@ exports.loginWithOtpVerify = async (req, res) => {
     // Sign Authentication JWT
     const token = jwt.sign(
       { id: user._id, type: user.type, role: user.role, department: user.department },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || 'supersecretkey_change_in_production',
       { expiresIn: '1d' }
     );
 
